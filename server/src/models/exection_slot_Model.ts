@@ -1,22 +1,25 @@
 import { client } from "../database/connection";
 
-interface Slot {
+interface ExceptionSlot {
   id?: number;
-  day_of_week: number;
-  start_time: string;
-  end_time: string;
-  active?: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  recurring_slot_id: number;
+  date: string;
+  start_time?: string;
+  end_time?: string;
+  status: "edited" | "deleted";
 }
-export const updateSlot = async (id: number, data:Slot) => {
-  const updatedSlot = await client("exceptionSlot").where({
-    recurring_slot_id: id,
-  }).update(data).returning("*");
 
-  return updatedSlot;
+export const createException = async (data: ExceptionSlot) => {
+  const [exception] = await client("exceptionSlot").insert(data).returning("*");
+  return exception;
 };
 
-export const deleteSlot = async(id:number)=>{
-    await client("exceptionSlot").where({recurring_slot_id: id}).delete();
-}
+export const markSlotDeleted = async (recurringSlotId: number, date: string) => {
+  const [exception] = await client("exceptionSlot").insert({
+    recurring_slot_id: recurringSlotId,
+    date,
+    status: "deleted"
+  }).returning("*");
+  return exception;
+};
+

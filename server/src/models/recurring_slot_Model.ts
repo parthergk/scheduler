@@ -16,9 +16,7 @@ export const createSlot = async (data: Slot): Promise<Slot> => {
 };
 
 export const getSlot = async(startDate: string, endDate: string)=>{
-    const recurring = await client("recurringSlot").select("*");
-
+    const recurring = await client("recurringSlot");
     const exception = await client("exceptionSlot").whereBetween("date", [startDate, endDate]);
-
     return {recurring, exception};
 }

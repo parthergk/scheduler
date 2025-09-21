@@ -41,9 +41,9 @@ app.post("/", async (req: Request, res: Response) => {
 });
 
 app.put("/", async (req: Request, res: Response) => {
-  const { id, data } = req.body;
+  const { data } = req.body;
   try {
-    const updatedSlot = ExectionSlot.updateSlot(id, data);
+    const updatedSlot = ExectionSlot.createException(data);
     res.status(200).json(updatedSlot);
   } catch (error) {
     const errMsg =
@@ -55,9 +55,9 @@ app.put("/", async (req: Request, res: Response) => {
 });
 
 app.delete("/", async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id, date } = req.body;
   try {
-    await ExectionSlot.deleteSlot(id);
+    await ExectionSlot.markSlotDeleted(id, date);
     res.status(200).json({ message: "slot deleted" });
   } catch (error) {
     const errMsg =
