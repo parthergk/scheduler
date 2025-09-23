@@ -1,8 +1,10 @@
 import { addDays, format, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import Slots from "./components/Slots";
+import { useSave } from "./context/SaveProvider";
 
 export default function App() {
+  const { isSave } = useSave();
   const [weekDays, setWeekDays] = useState<Date[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
@@ -29,7 +31,6 @@ export default function App() {
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
     if (scrollTop + clientHeight >= scrollHeight - 50) {
-      // near bottom
       loadMoreWeek();
     }
   };
@@ -39,12 +40,23 @@ export default function App() {
       <div className=" w-full max-w-xl mx-auto">
         <div className="bg-white border border-gray-200 rounded-md overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h1 className="text-2xl sm:text-3xl text-black mb-2 text-center">
+            <h1 className="text-2xl sm:text-3xl text-black mb-5 text-center">
               Your Schedule
             </h1>
-            <div className="text-sm text-gray-500 font-medium text-end">
-            {format(currentDate, "MMMM, yyyy")}
-          </div>
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500 font-medium">
+                {format(currentDate, "MMMM, yyyy")}
+              </div>
+              <button
+              onClick={()=>console.log("Clicked")}
+                disabled={isSave !== true}
+                className={` cursor-pointer text-sm font-medium text-white px-2 rounded-sm ${
+                  isSave ? "bg-green-600" : "bg-neutral-400"
+                }`}
+              >
+                Save
+              </button>
+            </div>
           </div>
 
           <div
