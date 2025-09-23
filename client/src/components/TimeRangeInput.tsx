@@ -2,7 +2,11 @@ import { useState } from "react";
 import TimeInput from "./TimeInput";
 import { useSave } from "../context/SaveProvider";
 
-const TimeRangeInput = () => {
+interface Props{
+  onChange: (s:string, e:string)=>void;
+};
+
+const TimeRangeInput:React.FC<Props> = ({ onChange }) => {
   const invalidTimes = ["00:00", "00:0", "00", "0", ""];
 
   const [startTime, setStartTime] = useState("00:00");
@@ -16,12 +20,14 @@ const TimeRangeInput = () => {
     }
 
     setStartTime(value);
+    onChange(value, endTime);
   };
   const handleEndTimeChange = (value: string) => {
     if (!invalidTimes.includes(startTime)) {
       setIsSave(true);
     }
     setEndTime(value);
+    onChange(startTime, value);
   };
 
   return (

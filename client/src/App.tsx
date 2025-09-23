@@ -6,16 +6,76 @@ import { useSave } from "./context/SaveProvider";
 export default function App() {
   const { isSave } = useSave();
   const [weekDays, setWeekDays] = useState<Date[]>([]);
+  const [weekSlots, setWeekSlots] = useState();
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [slotsData, setSlotsData] = useState<{
+    day: number;
+    startTime: string;
+    endTime: string;
+  } | null>(null);
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(slotsData),
+      });
+
+      if (!res.ok) throw new Error("Failed to save");
+      const data = await res.json();
+      console.log("Saved successfully:", data);
+    } catch (err) {
+      console.error("Error saving schedule:", err);
+    }
+  };
+
+  async function fetchData() {
+    const startDate = format(weekDays[0], "yyyy-MM-dd");
+    const endDate = format(weekDays[6], "yyyy-MM-dd");
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/schedule?startDate=${startDate}&endDate=${endDate}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to save");
+      const data = await res.json();
+
+      const mappedWeek = weekDays.map((day, index) => {
+        const dayOfWeek = index + 1;
+        const slotsForDay = data.recurring.filter(
+          (slot: any) => slot.day_of_week === dayOfWeek
+        );
+        return slotsForDay;
+      });
+      
+      setWeekSlots(mappedWeek);
+
+      console.log("Saved successfully:", data);
+    } catch (err) {
+      console.error("Error saving schedule:", err);
+    }
+  }
 
   useEffect(() => {
     const firstDay = startOfWeek(currentDate, { weekStartsOn: 1 });
     const firstWeek: Date[] = [];
-    for (let i = 0; i < 7; i++) {
+    const currentDay = currentDate.getDay() - 1;
+    for (let i = currentDay; i < currentDay + 7; i++) {
       firstWeek.push(addDays(firstDay, i));
     }
     setWeekDays(firstWeek);
   }, [currentDate]);
+
+  useEffect(() => {
+    if (weekDays.length === 0) return;
+    fetchData();
+  }, [weekDays]);
 
   const loadMoreWeek = () => {
     if (weekDays.length === 0) return;
@@ -35,6 +95,7 @@ export default function App() {
     }
   };
 
+  
   return (
     <div className="min-h-screen w-screen flex justify-center items-center bg-white p-4 sm:p-6 lg:p-8">
       <div className=" w-full max-w-xl mx-auto">
@@ -48,10 +109,10 @@ export default function App() {
                 {format(currentDate, "MMMM, yyyy")}
               </div>
               <button
-              onClick={()=>console.log("Clicked")}
+                onClick={handleSave}
                 disabled={isSave !== true}
                 className={` cursor-pointer text-sm font-medium text-white px-2 rounded-sm ${
-                  isSave ? "bg-green-600" : "bg-neutral-400"
+                  isSave ? " bg-amber-500" : "bg-neutral-400"
                 }`}
               >
                 Save
@@ -71,7 +132,13 @@ export default function App() {
                 <span className="font-medium w-full sm:w-auto">
                   {format(day, "EE, d MMMM")}
                 </span>
-                <Slots />
+                <Slots
+                initSlots={weekSlots}
+                  day={day}
+                  onSlotChange={(slot) => {
+                    setSlotsData(slot);
+                  }}
+                />
               </div>
             ))}
           </div>

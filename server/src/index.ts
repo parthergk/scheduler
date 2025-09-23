@@ -1,10 +1,9 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+dotenv.config();
 import * as RecurringSlot from "./models/recurring_slot_Model";
 import * as ExectionSlot from "./models/exection_slot_Model";
-
-dotenv.config();
 
 const app = express();
 
@@ -13,11 +12,17 @@ app.use(express.json());
 
 const port = process.env.PORT || 8080;
 
-app.post("/", async (req: Request, res: Response) => {
+app.post("/api/schedule", async (req: Request, res: Response) => {
   try {
-    const newSlot = await RecurringSlot.createSlot(req.body);
+    const newSlot = await RecurringSlot.createSlot({
+      day_of_week: req.body.day,
+      start_time: req.body.startTime,
+      end_time: req.body.endTime,
+    });
     res.status(200).json(newSlot);
   } catch (error) {
+    console.log("Error", error);
+
     const errMsg =
       error instanceof Error
         ? error.message
@@ -26,10 +31,16 @@ app.post("/", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/", async (req: Request, res: Response) => {
-  const { startDate, endDate } = req.body;
+app.get("/api/schedule", async (req: Request, res: Response) => {
+  const startDate = req.query.startDate as string;
+  const endDate = req.query.endDate as string;
+
+  if (!startDate || !endDate) {
+    return res.status(400).json({ error: "Start Date and End Date required" });
+  }
+
   try {
-    const slots = await RecurringSlot.getSlot(startDate, endDate);
+    const slots = await RecurringSlot.getSlot(startDate, endDate);    
     res.status(200).json(slots);
   } catch (error) {
     const errMsg =

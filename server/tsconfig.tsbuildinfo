@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/database/connection.ts","./src/models/usermodel.ts"],"version":"5.9.2"}
+{"root":["./src/index.ts","./src/database/connection.ts","./src/helper/getslotsforweek.ts","./src/models/exection_slot_model.ts","./src/models/recurring_slot_model.ts"],"version":"5.9.2"}
