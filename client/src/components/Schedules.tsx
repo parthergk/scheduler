@@ -1,7 +1,8 @@
+import { SquarePen, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 interface SlotData {
-  id?: number;
+  id: number;
   day_of_week: number;
   start_time: string;
   end_time: string;
@@ -15,22 +16,95 @@ interface Props {
 }
 
 const Schedule: React.FC<Props> = ({ initSlots }) => {
-  const [input, setInput]= useState("");
-  
+  const [slots, setSlots] = useState(initSlots || []);
+
+  const handleChange = (
+    id: number,
+    key: "start_time" | "end_time",
+    value: string
+  ) => {
+    setSlots((prev) =>
+      prev.map((slot) =>
+        slot.id === id ? { ...slot, [key]: value } : slot
+      )
+    );
+  };
+
+  const handleUpdate = async (slot: SlotData) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/schedule/${slot.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          start_time: slot.start_time,
+          end_time: slot.end_time,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      const data = await res.json();
+      console.log("Updated successfully:", data);
+    } catch (err) {
+      console.error("Error updating slot:", err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/schedule/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+      setSlots((prev) => prev.filter((slot) => slot.id !== id));
+      console.log("Deleted successfully");
+    } catch (err) {
+      console.error("Error deleting slot:", err);
+    }
+  };
+
   return (
-    <div className=" flex flex-col gap-2">
-      {initSlots?.map((item) => (
-        <input
+    <div className="flex flex-col gap-2">
+      {slots.map((item) => (
+        <div
           key={item.id}
-          type="text"
-          placeholder="00:00"
-          onChange={(e)=>setInput(e.target.value)}
-          value={`${item.start_time.slice(0, 5)} to ${item.end_time.slice(
-            0,
-            5
-          )}`}
-          className={`w-28 px-2 py-1 text-sm border border-gray-300 rounded-sm bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 text-center`}
-        />
+          className="flex items-center gap-2 justify-center"
+        >
+          <input
+            type="text"
+            placeholder="00:00"
+            value={item.start_time.slice(0, 5)}
+            onChange={(e) =>
+              handleChange(item.id, "start_time", e.target.value)
+            }
+            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm text-center"
+          />
+          <span>to</span>
+          <input
+            type="text"
+            placeholder="00:00"
+            value={item.end_time.slice(0, 5)}
+            onChange={(e) =>
+              handleChange(item.id, "end_time", e.target.value)
+            }
+            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm text-center"
+          />
+
+          {/* Update Button */}
+          <button
+            onClick={() => handleUpdate(item)}
+            className="p-1 text-gray-600 hover:text-black hover:bg-gray-100 rounded-md transition-colors duration-200"
+            title="Update slot"
+          >
+            <SquarePen className="h-5 w-5" />
+          </button>
+
+          <button
+            onClick={() => handleDelete(item.id)}
+            className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors duration-200"
+            title="Delete slot"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </div>
       ))}
     </div>
   );
