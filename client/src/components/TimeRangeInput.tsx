@@ -6,11 +6,11 @@ interface Props{
   onChange: (s:string, e:string)=>void;
 };
 
-const TimeRangeInput:React.FC<Props> = ({ onChange }) => {
+const TimeRangeInput:React.FC<Props> = ({ onChange, sTime, eTime }) => {
   const invalidTimes = ["00:00", "00:0", "00", "0", ""];
 
-  const [startTime, setStartTime] = useState("00:00");
-  const [endTime, setEndTime] = useState("00:00");
+  const [startTime, setStartTime] = useState(sTime);
+  const [endTime, setEndTime] = useState(eTime);
 
   const { setIsSave } = useSave();
 

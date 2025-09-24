@@ -14,7 +14,7 @@ export default function App() {
     endTime: string;
   } | null>(null);
 
-  const handleSave = async () => {
+  async function saveData() {
     try {
       const res = await fetch("http://localhost:8080/api/schedule", {
         method: "POST",
@@ -28,7 +28,7 @@ export default function App() {
     } catch (err) {
       console.error("Error saving schedule:", err);
     }
-  };
+  }
 
   async function fetchData() {
     const startDate = format(weekDays[0], "yyyy-MM-dd");
@@ -48,13 +48,13 @@ export default function App() {
 
       const mappedWeek = weekDays.map((day, index) => {
         const dayOfWeek = index + 1;
-        const slotsForDay = data.recurring.filter(
+        const slotsForDay = data.filter(
           (slot: any) => slot.day_of_week === dayOfWeek
         );
         return slotsForDay;
       });
-      
-      setWeekSlots(mappedWeek);
+
+      setWeekSlots(data);
 
       console.log("Saved successfully:", data);
     } catch (err) {
@@ -95,7 +95,6 @@ export default function App() {
     }
   };
 
-  
   return (
     <div className="min-h-screen w-screen flex justify-center items-center bg-white p-4 sm:p-6 lg:p-8">
       <div className=" w-full max-w-xl mx-auto">
@@ -109,7 +108,7 @@ export default function App() {
                 {format(currentDate, "MMMM, yyyy")}
               </div>
               <button
-                onClick={handleSave}
+                onClick={saveData}
                 disabled={isSave !== true}
                 className={` cursor-pointer text-sm font-medium text-white px-2 rounded-sm ${
                   isSave ? " bg-amber-500" : "bg-neutral-400"
@@ -133,7 +132,9 @@ export default function App() {
                   {format(day, "EE, d MMMM")}
                 </span>
                 <Slots
-                initSlots={weekSlots}
+                  initSlots={weekSlots?.filter(
+                    (slot) => day.getDay() === slot.day_of_week
+                  )}
                   day={day}
                   onSlotChange={(slot) => {
                     setSlotsData(slot);

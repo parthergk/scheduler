@@ -4,6 +4,7 @@ import cors from "cors";
 dotenv.config();
 import * as RecurringSlot from "./models/recurring_slot_Model";
 import * as ExectionSlot from "./models/exection_slot_Model";
+import { getSlotsForWeek } from "./helper/getSlotsForWeek";
 
 const app = express();
 
@@ -40,7 +41,7 @@ app.get("/api/schedule", async (req: Request, res: Response) => {
   }
 
   try {
-    const slots = await RecurringSlot.getSlot(startDate, endDate);    
+    const slots = await getSlotsForWeek(startDate, endDate);
     res.status(200).json(slots);
   } catch (error) {
     const errMsg =
