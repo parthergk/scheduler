@@ -1,34 +1,23 @@
 import { addDays, format, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
-import Slots from "./components/Slots";
-import { useSave } from "./context/SaveProvider";
+import Schedules from "./components/Schedules";
+import { CircleCheck } from "lucide-react";
+import SlotInput from "./components/SlotInput";
+
+interface Slots {
+  id?: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  active?: boolean;
+  created_at?: Date;
+  updated_at?: Date;
+}
 
 export default function App() {
-  const { isSave } = useSave();
   const [weekDays, setWeekDays] = useState<Date[]>([]);
-  const [weekSlots, setWeekSlots] = useState();
+  const [weekSlots, setWeekSlots] = useState<Slots[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [slotsData, setSlotsData] = useState<{
-    day: number;
-    startTime: string;
-    endTime: string;
-  } | null>(null);
-
-  async function saveData() {
-    try {
-      const res = await fetch("http://localhost:8080/api/schedule", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(slotsData),
-      });
-
-      if (!res.ok) throw new Error("Failed to save");
-      const data = await res.json();
-      console.log("Saved successfully:", data);
-    } catch (err) {
-      console.error("Error saving schedule:", err);
-    }
-  }
 
   async function fetchData() {
     const startDate = format(weekDays[0], "yyyy-MM-dd");
@@ -107,15 +96,6 @@ export default function App() {
               <div className="text-sm text-gray-500 font-medium">
                 {format(currentDate, "MMMM, yyyy")}
               </div>
-              <button
-                onClick={saveData}
-                disabled={isSave !== true}
-                className={` cursor-pointer text-sm font-medium text-white px-2 rounded-sm ${
-                  isSave ? " bg-amber-500" : "bg-neutral-400"
-                }`}
-              >
-                Save
-              </button>
             </div>
           </div>
 
@@ -126,19 +106,25 @@ export default function App() {
             {weekDays.map((day) => (
               <div
                 key={day.toISOString()}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-2 rounded shadow-sm"
+                className="flex flex-row items-center justify-between gap-2 bg-white p-2 rounded shadow-sm"
               >
-                <span className="font-medium w-full sm:w-auto">
-                  {format(day, "EE, d MMMM")}
-                </span>
-                <Slots
-                  initSlots={weekSlots?.filter(
-                    (slot) => day.getDay() === slot.day_of_week
-                  )}
-                  day={day}
-                  onSlotChange={(slot) => {
-                    setSlotsData(slot);
-                  }}
+                <div className="flex flex-col justify-between gap-2">
+                  <span className="font-medium w-full sm:w-auto">
+                    {format(day, "EE, d MMMM")}
+                  </span>
+                  <Schedules
+                    initSlots={weekSlots?.filter(
+                      (slot) => day.getDay() === slot.day_of_week
+                    )}
+                  />
+                </div>
+                <SlotInput
+                  length={
+                    weekSlots?.filter(
+                      (slot) => day.getDay() === slot.day_of_week
+                    ).length
+                  }
+                  day={day.getDay()}
                 />
               </div>
             ))}
