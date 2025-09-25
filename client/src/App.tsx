@@ -1,11 +1,10 @@
 import { addDays, format, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import Schedules from "./components/Schedules";
-import { CircleCheck } from "lucide-react";
 import SlotInput from "./components/SlotInput";
 
-interface Slots {
-  id?: number;
+interface SlotData {
+  id: number;
   day_of_week: number;
   start_time: string;
   end_time: string;
@@ -16,7 +15,7 @@ interface Slots {
 
 export default function App() {
   const [weekDays, setWeekDays] = useState<Date[]>([]);
-  const [weekSlots, setWeekSlots] = useState<Slots[]>([]);
+  const [weekSlots, setWeekSlots] = useState<SlotData[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   async function fetchData() {
@@ -35,13 +34,13 @@ export default function App() {
       if (!res.ok) throw new Error("Failed to save");
       const data = await res.json();
 
-      const mappedWeek = weekDays.map((day, index) => {
-        const dayOfWeek = index + 1;
-        const slotsForDay = data.filter(
-          (slot: any) => slot.day_of_week === dayOfWeek
-        );
-        return slotsForDay;
-      });
+      // const mappedWeek = weekDays.map((day, index) => {
+      //   const dayOfWeek = index + 1;
+      //   const slotsForDay = data.filter(
+      //     (slot: any) => slot.day_of_week === dayOfWeek
+      //   );
+      //   return slotsForDay;
+      // });
 
       setWeekSlots(data);
 
@@ -106,26 +105,28 @@ export default function App() {
             {weekDays.map((day) => (
               <div
                 key={day.toISOString()}
-                className="flex flex-row items-center justify-between gap-2 bg-white p-2 rounded shadow-sm"
+                className=" bg-white p-2 rounded shadow-sm"
               >
-                <div className="flex flex-col justify-between gap-2">
-                  <span className="font-medium w-full sm:w-auto">
-                    {format(day, "EE, d MMMM")}
-                  </span>
+                <div className="flex flex-col justify-between items-start gap-2">
+                  <div className=" w-full flex justify-between">
+                    <span className="font-medium w-full sm:w-auto">
+                      {format(day, "EE, d MMMM")}
+                    </span>
+                    <SlotInput
+                      length={
+                        weekSlots?.filter(
+                          (slot) => day.getDay() === slot.day_of_week
+                        ).length
+                      }
+                      day={day.getDay()}
+                    />
+                  </div>
                   <Schedules
                     initSlots={weekSlots?.filter(
                       (slot) => day.getDay() === slot.day_of_week
                     )}
                   />
                 </div>
-                <SlotInput
-                  length={
-                    weekSlots?.filter(
-                      (slot) => day.getDay() === slot.day_of_week
-                    ).length
-                  }
-                  day={day.getDay()}
-                />
               </div>
             ))}
           </div>

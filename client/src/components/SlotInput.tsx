@@ -2,7 +2,6 @@ import { CircleCheck } from "lucide-react";
 import { useState } from "react";
 
 const SlotInput = ({ length, day }: { length: number; day: number }) => {
-    
   const [startTime, setStartTime] = useState("00:00");
   const [endTime, setEndTime] = useState("00:00");
 
@@ -69,7 +68,7 @@ const SlotInput = ({ length, day }: { length: number; day: number }) => {
     }
   };
   return (
-    <div className=" flex">
+    <div className=" flex gap-1">
       <input
         type="text"
         maxLength={5}
@@ -77,9 +76,9 @@ const SlotInput = ({ length, day }: { length: number; day: number }) => {
         onChange={hanleStartTimeChange}
         onKeyDown={handleKeyDown}
         placeholder="00:00"
-        className={`w-28 px-2 py-1 text-sm border border-gray-300 rounded-sm bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 text-center`}
+        className={`w-20 py-0.5 text-sm border border-gray-300 rounded-sm bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 text-center`}
       />
-      To
+      <span>To</span>
       <input
         type="text"
         maxLength={5}
@@ -87,7 +86,7 @@ const SlotInput = ({ length, day }: { length: number; day: number }) => {
         onChange={hanleEndTimeChange}
         onKeyDown={handleKeyDown}
         placeholder="00:00"
-        className={`w-28 px-2 py-1 text-sm border border-gray-300 rounded-sm bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 text-center`}
+        className={`w-20 py-0.5 text-sm border border-gray-300 rounded-sm bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all duration-200 text-center`}
       />
       <button
         type="button"

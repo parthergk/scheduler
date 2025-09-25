@@ -1,5 +1,5 @@
 import { SquarePen, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SlotData {
   id: number;
@@ -16,7 +16,11 @@ interface Props {
 }
 
 const Schedule: React.FC<Props> = ({ initSlots }) => {
-  const [slots, setSlots] = useState(initSlots || []);
+  const [slots, setSlots] = useState<SlotData[]>([]);
+
+  useEffect(() => {
+    setSlots(initSlots);
+  }, [initSlots]);
 
   const handleChange = (
     id: number,
@@ -24,9 +28,7 @@ const Schedule: React.FC<Props> = ({ initSlots }) => {
     value: string
   ) => {
     setSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === id ? { ...slot, [key]: value } : slot
-      )
+      prev.map((slot) => (slot.id === id ? { ...slot, [key]: value } : slot))
     );
   };
 
@@ -64,29 +66,28 @@ const Schedule: React.FC<Props> = ({ initSlots }) => {
   return (
     <div className="flex flex-col gap-2">
       {slots.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center gap-2 justify-center"
-        >
-          <input
-            type="text"
-            placeholder="00:00"
-            value={item.start_time.slice(0, 5)}
-            onChange={(e) =>
-              handleChange(item.id, "start_time", e.target.value)
-            }
-            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm text-center"
-          />
-          <span>to</span>
-          <input
-            type="text"
-            placeholder="00:00"
-            value={item.end_time.slice(0, 5)}
-            onChange={(e) =>
-              handleChange(item.id, "end_time", e.target.value)
-            }
-            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-sm text-center"
-          />
+        <div key={item.id} className="flex items-center gap-1 justify-center">
+          <div className=" border border-gray-300 rounded-sm">
+            <input
+              type="text"
+              placeholder="00:00"
+              value={item.start_time.slice(0, 5)}
+              onChange={(e) =>
+                handleChange(item.id, "start_time", e.target.value)
+              }
+              className="w-12 py-0.5 text-sm text-center outline-none"
+            />
+            <span>to</span>
+            <input
+              type="text"
+              placeholder="00:00"
+              value={item.end_time.slice(0, 5)}
+              onChange={(e) =>
+                handleChange(item.id, "end_time", e.target.value)
+              }
+              className="w-12 py-0.5 text-sm text-center outline-none"
+            />
+          </div>
 
           {/* Update Button */}
           <button
