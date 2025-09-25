@@ -122,6 +122,7 @@ export default function App() {
                     />
                   </div>
                   <Schedules
+                  date={day.toDateString()}
                     initSlots={weekSlots?.filter(
                       (slot) => day.getDay() === slot.day_of_week
                     )}

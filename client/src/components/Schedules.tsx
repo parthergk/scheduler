@@ -1,4 +1,4 @@
-import { SquarePen, Trash2 } from "lucide-react";
+import { CircleCheck, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface SlotData {
@@ -13,13 +13,16 @@ interface SlotData {
 
 interface Props {
   initSlots?: SlotData[];
+  date: string;
 }
 
-const Schedule: React.FC<Props> = ({ initSlots }) => {
+const Schedule: React.FC<Props> = ({ date, initSlots }) => {
   const [slots, setSlots] = useState<SlotData[]>([]);
 
   useEffect(() => {
-    setSlots(initSlots);
+    if (initSlots) {
+      setSlots(initSlots);
+    }
   }, [initSlots]);
 
   const handleChange = (
@@ -34,40 +37,49 @@ const Schedule: React.FC<Props> = ({ initSlots }) => {
 
   const handleUpdate = async (slot: SlotData) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/schedule/${slot.id}`, {
+      const res = await fetch(`http://localhost:8080/api/schedule`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: slot.id,
+          date,
           start_time: slot.start_time,
           end_time: slot.end_time,
+          status: "edited",
         }),
       });
       if (!res.ok) throw new Error("Failed to update");
       const data = await res.json();
-      console.log("Updated successfully:", data);
+      console.log("✅ Updated successfully:", data);
     } catch (err) {
-      console.error("Error updating slot:", err);
+      console.error("❌ Error updating slot:", err);
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/schedule/${id}`, {
+      const res = await fetch(`http://localhost:8080/api/schedule`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, date }),
       });
       if (!res.ok) throw new Error("Failed to delete");
       setSlots((prev) => prev.filter((slot) => slot.id !== id));
-      console.log("Deleted successfully");
+      console.log("🗑️ Deleted successfully");
     } catch (err) {
-      console.error("Error deleting slot:", err);
+      console.error("❌ Error deleting slot:", err);
     }
   };
 
   return (
     <div className="flex flex-col gap-2">
       {slots.map((item) => (
-        <div key={item.id} className="flex items-center gap-1 justify-center">
-          <div className=" border border-gray-300 rounded-sm">
+        <div
+          key={item.id}
+          className="flex items-center gap-1 justify-center"
+        >
+          {/* Time Inputs */}
+          <div className="border border-gray-300 rounded-sm">
             <input
               type="text"
               placeholder="00:00"
@@ -77,7 +89,7 @@ const Schedule: React.FC<Props> = ({ initSlots }) => {
               }
               className="w-12 py-0.5 text-sm text-center outline-none"
             />
-            <span>to</span>
+            <span> to </span>
             <input
               type="text"
               placeholder="00:00"
@@ -95,9 +107,10 @@ const Schedule: React.FC<Props> = ({ initSlots }) => {
             className="p-1 text-gray-600 hover:text-black hover:bg-gray-100 rounded-md transition-colors duration-200"
             title="Update slot"
           >
-            <SquarePen className="h-5 w-5" />
+            <CircleCheck className="h-5 w-5" />
           </button>
 
+          {/* Delete Button */}
           <button
             onClick={() => handleDelete(item.id)}
             className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors duration-200"
