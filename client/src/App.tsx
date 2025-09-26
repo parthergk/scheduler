@@ -19,7 +19,7 @@ interface SlotData {
 export default function App() {
   const [weekDays, setWeekDays] = useState<Date[]>([]);
   const [weekSlots, setWeekSlots] = useState<SlotData[]>([]);
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [currentDate] = useState<Date>(new Date());
   const [message, setMessage] = useState<string | null>(null);
 
   async function fetchData() {
