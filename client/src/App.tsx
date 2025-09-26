@@ -11,6 +11,7 @@ interface SlotData {
   active?: boolean;
   created_at?: Date;
   updated_at?: Date;
+  status: string;
 }
 
 export default function App() {
@@ -32,16 +33,7 @@ export default function App() {
       );
 
       if (!res.ok) throw new Error("Failed to save");
-      const data = await res.json();
-
-      // const mappedWeek = weekDays.map((day, index) => {
-      //   const dayOfWeek = index + 1;
-      //   const slotsForDay = data.filter(
-      //     (slot: any) => slot.day_of_week === dayOfWeek
-      //   );
-      //   return slotsForDay;
-      // });
-
+      const { data } = await res.json();
       setWeekSlots(data);
 
       console.log("Saved successfully:", data);
@@ -114,18 +106,44 @@ export default function App() {
                     </span>
                     <SlotInput
                       length={
-                        weekSlots?.filter(
-                          (slot) => day.getDay() === slot.day_of_week
-                        ).length
+                        weekSlots?.filter((slot) => {
+                          const slotDate = format(new Date(day), "yyyy-MM-dd");
+                          if (slot.status === "edited") {
+                            return slot.date === slotDate;
+                          }
+
+                          const hasException = weekSlots.some(
+                            (ex) =>
+                              ex.status === "edited" &&
+                              ex.id === slot.id &&
+                              ex.date === slotDate
+                          );
+                          return (
+                            slot.day_of_week === day.getDay() && !hasException
+                          );
+                        }).length
                       }
                       day={day.getDay()}
                     />
                   </div>
                   <Schedules
-                  date={day.toDateString()}
-                    initSlots={weekSlots?.filter(
-                      (slot) => day.getDay() === slot.day_of_week
-                    )}
+                    date={day.toDateString()}
+                    initSlots={weekSlots?.filter((slot) => {
+                      const slotDate = format(new Date(day), "yyyy-MM-dd");
+
+                      if (slot.status === "edited") {
+                        return slot.date === slotDate;
+                      }
+
+                      const hasException = weekSlots.some(
+                        (ex) =>
+                          ex.status === "edited" &&
+                          ex.id === slot.id &&
+                          ex.date === slotDate
+                      );
+
+                      return slot.day_of_week === day.getDay() && !hasException;
+                    })}
                   />
                 </div>
               </div>

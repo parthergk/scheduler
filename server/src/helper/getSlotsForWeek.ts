@@ -1,7 +1,10 @@
 import * as RecurringSlot from "../models/recurring_slot_Model";
 
 export async function getSlotsForWeek(startDate: string, endDate: string) {
-  const { exception, recurring } = await RecurringSlot.getSlot(startDate, endDate);
+  const { exception, recurring } = await RecurringSlot.getSlot(
+    startDate,
+    endDate
+  );
 
   const slots = [];
   let current = new Date(startDate);
@@ -14,29 +17,26 @@ export async function getSlotsForWeek(startDate: string, endDate: string) {
     const daySlot = recurring.filter((s) => s.day_of_week === dayOfWeek);
 
     for (const rSlot of daySlot) {
-      const ex = exception.find(
-        (e) => e.recurring_slot_id === rSlot.id && e.date === dateStr
-      );
-
+      const ex = exception.find((e) => e.recurring_slot_id === rSlot.id);
+      
       if (ex) {
         slots.push({
           ...rSlot,
-          date: ex.date,
+          date: new Date(ex.date).toLocaleDateString("en-CA"),
           start_time: ex.start_time,
           end_time: ex.end_time,
           status: "edited",
         });
-      } else {
-        slots.push({
-          ...rSlot,
-          date: dateStr,
-          status: "recurring",
-        });
       }
+      slots.push({
+        ...rSlot,
+        date: dateStr,
+        status: "recurring",
+      });
     }
 
     current.setDate(current.getDate() + 1);
   }
-
+  
   return slots;
 }

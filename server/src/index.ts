@@ -71,7 +71,7 @@ app.put("/api/schedule", async (req: Request, res: Response) => {
       .status(400)
       .json({ success: false, error: "id and date are required" });
   }
-
+  
   try {
     const updatedSlot = await ExectionSlot.createException({
       recurring_slot_id: id,
@@ -91,7 +91,7 @@ app.put("/api/schedule", async (req: Request, res: Response) => {
   }
 });
 
-app.delete("/", async (req: Request, res: Response) => {
+app.delete("/api/schedule", async (req: Request, res: Response) => {
   const { id, date } = req.body;
 
   if (!id || !date) {

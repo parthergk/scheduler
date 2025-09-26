@@ -74,10 +74,7 @@ const Schedule: React.FC<Props> = ({ date, initSlots }) => {
   return (
     <div className="flex flex-col gap-2">
       {slots.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center gap-1 justify-center"
-        >
+        <div key={item.id} className="flex items-center gap-1 justify-center">
           {/* Time Inputs */}
           <div className="border border-gray-300 rounded-sm">
             <input
