@@ -16,13 +16,14 @@ interface Props {
   date: string;
 }
 
-const Schedule: React.FC<Props> = ({ date, initSlots }) => {
+const Schedule: React.FC<Props & {
+  onChange: () => void;
+  showMessage: (msg: string, isError?: boolean) => void;
+}> = ({ date, initSlots, onChange, showMessage }) => {
   const [slots, setSlots] = useState<SlotData[]>([]);
 
   useEffect(() => {
-    if (initSlots) {
-      setSlots(initSlots);
-    }
+    if (initSlots) setSlots(initSlots);
   }, [initSlots]);
 
   const handleChange = (
@@ -40,19 +41,14 @@ const Schedule: React.FC<Props> = ({ date, initSlots }) => {
       const res = await fetch(`http://localhost:8080/api/schedule`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: slot.id,
-          date,
-          start_time: slot.start_time,
-          end_time: slot.end_time,
-          status: "edited",
-        }),
+        body: JSON.stringify({ ...slot, date, status: "edited" }),
       });
-      if (!res.ok) throw new Error("Failed to update");
-      const data = await res.json();
-      console.log("✅ Updated successfully:", data);
-    } catch (err) {
-      console.error("❌ Error updating slot:", err);
+      if (!res.ok) throw new Error("Failed to update slot");
+      await res.json();
+      showMessage("Slot updated successfully");
+      onChange(); // 🔥 Refetch
+    } catch (err: any) {
+      showMessage(err.message || "Error updating slot", true);
     }
   };
 
@@ -63,11 +59,11 @@ const Schedule: React.FC<Props> = ({ date, initSlots }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, date }),
       });
-      if (!res.ok) throw new Error("Failed to delete");
-      setSlots((prev) => prev.filter((slot) => slot.id !== id));
-      console.log("🗑️ Deleted successfully");
-    } catch (err) {
-      console.error("❌ Error deleting slot:", err);
+      if (!res.ok) throw new Error("Failed to delete slot");
+      showMessage("Slot deleted successfully");
+      onChange(); // 🔥 Refetch
+    } catch (err: any) {
+      showMessage(err.message || "Error deleting slot", true);
     }
   };
 
@@ -75,7 +71,6 @@ const Schedule: React.FC<Props> = ({ date, initSlots }) => {
     <div className="flex flex-col gap-2">
       {slots.map((item) => (
         <div key={item.id} className="flex items-center gap-1 justify-center">
-          {/* Time Inputs */}
           <div className="border border-gray-300 rounded-sm">
             <input
               type="text"

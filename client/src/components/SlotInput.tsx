@@ -1,7 +1,17 @@
 import { CircleCheck } from "lucide-react";
 import { useState } from "react";
 
-const SlotInput = ({ length, day }: { length: number; day: number }) => {
+const SlotInput = ({
+  length,
+  day,
+  onChange,
+  showMessage,
+}: {
+  length: number;
+  day: number;
+  onChange: () => void;
+  showMessage: (msg: string, isError?: boolean) => void;
+}) => {
   const [startTime, setStartTime] = useState("00:00");
   const [endTime, setEndTime] = useState("00:00");
 
@@ -31,18 +41,15 @@ const SlotInput = ({ length, day }: { length: number; day: number }) => {
       const res = await fetch("http://localhost:8080/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          day,
-          startTime,
-          endTime,
-        }),
+        body: JSON.stringify({ day, startTime, endTime }),
       });
 
-      if (!res.ok) throw new Error("Failed to save");
-      const data = await res.json();
-      console.log("Saved successfully:", data);
-    } catch (err) {
-      console.error("Error saving schedule:", err);
+      if (!res.ok) throw new Error("Failed to add slot");
+      await res.json();
+      showMessage("Slot added successfully");
+      onChange(); // 🔥 Refetch
+    } catch (err: any) {
+      showMessage(err.message || "Error saving slot", true);
     }
   }
 

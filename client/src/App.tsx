@@ -20,6 +20,7 @@ export default function App() {
   const [weekDays, setWeekDays] = useState<Date[]>([]);
   const [weekSlots, setWeekSlots] = useState<SlotData[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [message, setMessage] = useState<string | null>(null);
 
   async function fetchData() {
     const startDate = format(weekDays[0], "yyyy-MM-dd");
@@ -27,61 +28,50 @@ export default function App() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/schedule?startDate=${startDate}&endDate=${endDate}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
+        `http://localhost:8080/api/schedule?startDate=${startDate}&endDate=${endDate}`
       );
+      if (!res.ok) throw new Error("Failed to fetch slots");
 
-      if (!res.ok) throw new Error("Failed to save");
       const { data } = await res.json();
       setWeekSlots(data);
-
-      console.log("Saved successfully:", data);
-    } catch (err) {
-      console.error("Error saving schedule:", err);
+    } catch (err: any) {
+      showMessage(err.message || "Error fetching slots", true);
     }
+  }
+
+  function showMessage(msg: string, isError = false) {
+    setMessage(isError ? `❌ ${msg}` : `✅ ${msg}`);
+    setTimeout(() => setMessage(null), 3000);
   }
 
   useEffect(() => {
     const firstDay = startOfWeek(currentDate, { weekStartsOn: 1 });
     const firstWeek: Date[] = [];
-    const currentDay = currentDate.getDay() - 1;
-
-    for (let i = currentDay; i < currentDay + 7; i++) {
+    for (let i = 0; i < 7; i++) {
       firstWeek.push(addDays(firstDay, i));
     }
-
     setWeekDays(firstWeek);
   }, [currentDate]);
 
   useEffect(() => {
-    if (weekDays.length === 0) return;
-    fetchData();
+    if (weekDays.length > 0) fetchData();
   }, [weekDays]);
 
   const loadMoreWeek = () => {
     if (weekDays.length === 0) return;
-
     const lastDay = weekDays[weekDays.length - 1];
-    const newWeek: Date[] = [];
-    for (let i = 1; i <= 7; i++) {
-      newWeek.push(addDays(lastDay, i));
-    }
+    const newWeek = Array.from({ length: 7 }, (_, i) => addDays(lastDay, i + 1));
     setWeekDays((prev) => [...prev, ...newWeek]);
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
-    if (scrollTop + clientHeight >= scrollHeight - 50) {
-      loadMoreWeek();
-    }
+    if (scrollTop + clientHeight >= scrollHeight - 50) loadMoreWeek();
   };
 
   return (
     <div className="min-h-screen w-screen flex justify-center items-center bg-white p-4 sm:p-6 lg:p-8">
-      <div className=" w-full max-w-xl mx-auto">
+      <div className="w-full max-w-xl mx-auto">
         <div className="bg-white border border-gray-200 rounded-md overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100">
             <h1 className="text-2xl sm:text-3xl text-black mb-5 text-center">
@@ -92,6 +82,11 @@ export default function App() {
                 {format(currentDate, "MMMM, yyyy")}
               </div>
             </div>
+            {message && (
+              <div className="mt-3 text-center text-sm font-medium">
+                {message}
+              </div>
+            )}
           </div>
 
           <div
@@ -103,16 +98,26 @@ export default function App() {
               return (
                 <div
                   key={day.toISOString()}
-                  className=" bg-white p-2 rounded shadow-sm"
+                  className="bg-white p-2 rounded shadow-sm"
                 >
                   <div className="flex flex-col justify-between items-start gap-2">
-                    <div className=" w-full flex justify-between">
+                    <div className="w-full flex justify-between">
                       <span className="font-medium w-full sm:w-auto">
                         {format(day, "EE, d MMMM")}
                       </span>
-                      <SlotInput length={daySlots.length} day={day.getDay()} />
+                      <SlotInput
+                        length={daySlots.length}
+                        day={day.getDay()}
+                        onChange={fetchData}
+                        showMessage={showMessage}
+                      />
                     </div>
-                    <Schedules date={day.toDateString()} initSlots={daySlots} />
+                    <Schedules
+                      date={format(day, "yyyy-MM-dd")}
+                      initSlots={daySlots}
+                      onChange={fetchData}
+                      showMessage={showMessage}
+                    />
                   </div>
                 </div>
               );
