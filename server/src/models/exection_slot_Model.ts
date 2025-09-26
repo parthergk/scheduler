@@ -14,12 +14,8 @@ export const createException = async (data: ExceptionSlot) => {
   return exception;
 };
 
-export const markSlotDeleted = async (recurringSlotId: number, date: string) => {
-  const [exception] = await client("exceptionSlot").insert({
-    recurring_slot_id: recurringSlotId,
-    date,
-    status: "deleted"
-  }).returning("*");
+export const markSlotDeleted = async (data:ExceptionSlot) => {
+  const [exception] = await client("exceptionSlot").insert(data).returning("*");  
   return exception;
 };
 

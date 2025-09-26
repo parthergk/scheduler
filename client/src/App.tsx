@@ -2,6 +2,7 @@ import { addDays, format, startOfWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import Schedules from "./components/Schedules";
 import SlotInput from "./components/SlotInput";
+import { getDaySlots } from "./utils/slotHelpers";
 
 interface SlotData {
   id: number;
@@ -11,7 +12,8 @@ interface SlotData {
   active?: boolean;
   created_at?: Date;
   updated_at?: Date;
-  status: string;
+  status: "recurring" | "edited" | "deleted";
+  date?: string;
 }
 
 export default function App() {
@@ -46,9 +48,11 @@ export default function App() {
     const firstDay = startOfWeek(currentDate, { weekStartsOn: 1 });
     const firstWeek: Date[] = [];
     const currentDay = currentDate.getDay() - 1;
+
     for (let i = currentDay; i < currentDay + 7; i++) {
       firstWeek.push(addDays(firstDay, i));
     }
+
     setWeekDays(firstWeek);
   }, [currentDate]);
 
@@ -94,60 +98,25 @@ export default function App() {
             className="flex flex-col gap-3 max-h-96 overflow-y-auto"
             onScroll={handleScroll}
           >
-            {weekDays.map((day) => (
-              <div
-                key={day.toISOString()}
-                className=" bg-white p-2 rounded shadow-sm"
-              >
-                <div className="flex flex-col justify-between items-start gap-2">
-                  <div className=" w-full flex justify-between">
-                    <span className="font-medium w-full sm:w-auto">
-                      {format(day, "EE, d MMMM")}
-                    </span>
-                    <SlotInput
-                      length={
-                        weekSlots?.filter((slot) => {
-                          const slotDate = format(new Date(day), "yyyy-MM-dd");
-                          if (slot.status === "edited") {
-                            return slot.date === slotDate;
-                          }
-
-                          const hasException = weekSlots.some(
-                            (ex) =>
-                              ex.status === "edited" &&
-                              ex.id === slot.id &&
-                              ex.date === slotDate
-                          );
-                          return (
-                            slot.day_of_week === day.getDay() && !hasException
-                          );
-                        }).length
-                      }
-                      day={day.getDay()}
-                    />
+            {weekDays.map((day) => {
+              const daySlots = getDaySlots(weekSlots, day);
+              return (
+                <div
+                  key={day.toISOString()}
+                  className=" bg-white p-2 rounded shadow-sm"
+                >
+                  <div className="flex flex-col justify-between items-start gap-2">
+                    <div className=" w-full flex justify-between">
+                      <span className="font-medium w-full sm:w-auto">
+                        {format(day, "EE, d MMMM")}
+                      </span>
+                      <SlotInput length={daySlots.length} day={day.getDay()} />
+                    </div>
+                    <Schedules date={day.toDateString()} initSlots={daySlots} />
                   </div>
-                  <Schedules
-                    date={day.toDateString()}
-                    initSlots={weekSlots?.filter((slot) => {
-                      const slotDate = format(new Date(day), "yyyy-MM-dd");
-
-                      if (slot.status === "edited") {
-                        return slot.date === slotDate;
-                      }
-
-                      const hasException = weekSlots.some(
-                        (ex) =>
-                          ex.status === "edited" &&
-                          ex.id === slot.id &&
-                          ex.date === slotDate
-                      );
-
-                      return slot.day_of_week === day.getDay() && !hasException;
-                    })}
-                  />
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

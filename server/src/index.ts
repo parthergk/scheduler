@@ -93,14 +93,18 @@ app.put("/api/schedule", async (req: Request, res: Response) => {
 
 app.delete("/api/schedule", async (req: Request, res: Response) => {
   const { id, date } = req.body;
-
+  
   if (!id || !date) {
     return res
       .status(400)
       .json({ success: false, error: "id and date are required" });
   }
   try {
-    await ExectionSlot.markSlotDeleted(id, date);
+    await ExectionSlot.markSlotDeleted({
+    recurring_slot_id: id,
+    date,
+    status: "deleted"
+  });
 
     return res.status(200).json({ success: true, message: "Slot deleted" });
   } catch (error) {

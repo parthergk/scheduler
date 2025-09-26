@@ -17,16 +17,26 @@ export async function getSlotsForWeek(startDate: string, endDate: string) {
     const daySlot = recurring.filter((s) => s.day_of_week === dayOfWeek);
 
     for (const rSlot of daySlot) {
-      const ex = exception.find((e) => e.recurring_slot_id === rSlot.id);
-      
-      if (ex) {
-        slots.push({
-          ...rSlot,
-          date: new Date(ex.date).toLocaleDateString("en-CA"),
-          start_time: ex.start_time,
-          end_time: ex.end_time,
-          status: "edited",
-        });
+      const exSlots = exception.filter((e) => e.recurring_slot_id === rSlot.id);
+
+      if (exSlots.length > 0) {
+        for(const ex of exSlots){
+          if (ex.status === "edited") {
+            slots.push({
+              ...rSlot,
+              date: new Date(ex.date).toLocaleDateString("en-CA"),
+              start_time: ex.start_time,
+              end_time: ex.end_time,
+              status: "edited",
+            });
+          } else {
+            slots.push({
+              ...rSlot,
+              date: new Date(ex.date).toLocaleDateString("en-CA"),
+              status: "deleted",
+            });
+          }
+        }
       }
       slots.push({
         ...rSlot,
@@ -37,6 +47,6 @@ export async function getSlotsForWeek(startDate: string, endDate: string) {
 
     current.setDate(current.getDate() + 1);
   }
-  
+
   return slots;
 }
