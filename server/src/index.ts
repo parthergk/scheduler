@@ -120,6 +120,6 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
   }
 });
 
-export default (req: VercelRequest, res: VercelResponse) => {
+export default (req: Request, res: Response) => {
   app(req as any, res as any);
 };
