@@ -18,6 +18,10 @@ app.use(express.json());
 
 const port = process.env.PORT || 8080;
 
+app.get("/",(req, res)=>{
+  res.send("Hello");
+})
+
 app.post("/api/schedule", async (req: Request, res: Response) => {
   const { day, startTime, endTime } = req.body;
   try {
