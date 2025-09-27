@@ -120,6 +120,6 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+export default (req: VercelRequest, res: VercelResponse) => {
+  app(req as any, res as any);
+};

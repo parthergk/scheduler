@@ -38,7 +38,7 @@ const SlotInput = ({
 
   async function saveData() {
     try {
-      const res = await fetch("https://scheduler-ten-eosin.vercel.app/api/schedule", {
+      const res = await fetch("https://scheduler-teal-eight.vercel.app/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ day, startTime, endTime }),

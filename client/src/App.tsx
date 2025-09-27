@@ -28,7 +28,7 @@ export default function App() {
 
     try {
       const res = await fetch(
-        `https://scheduler-ten-eosin.vercel.app/api/schedule?startDate=${startDate}&endDate=${endDate}`
+        `https://scheduler-teal-eight.vercel.app/api/schedule?startDate=${startDate}&endDate=${endDate}`
       );
       if (!res.ok) throw new Error("Failed to fetch slots");
 
