@@ -128,3 +128,5 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`http server is runing on http://localhost:${port}`);
 });
+
+export default app
