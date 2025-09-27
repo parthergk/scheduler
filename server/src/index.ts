@@ -120,6 +120,6 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
   }
 });
 
-export default (req: Request, res: Response) => {
-  app(req as any, res as any);
-};
+app.listen(port,()=>{
+  console.log(`http server is runing on port ${port}`);
+})
