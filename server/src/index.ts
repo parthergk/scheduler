@@ -8,7 +8,12 @@ import { getSlotsForWeek } from "./helper/getSlotsForWeek";
 
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "https://slotscheduler-eight.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+  })
+);
 app.use(express.json());
 
 const port = process.env.PORT || 8080;
@@ -71,7 +76,7 @@ app.put("/api/schedule", async (req: Request, res: Response) => {
       .status(400)
       .json({ success: false, error: "id and date are required" });
   }
-  
+
   try {
     const updatedSlot = await ExectionSlot.createException({
       recurring_slot_id: id,
@@ -93,7 +98,7 @@ app.put("/api/schedule", async (req: Request, res: Response) => {
 
 app.delete("/api/schedule", async (req: Request, res: Response) => {
   const { id, date } = req.body;
-  
+
   if (!id || !date) {
     return res
       .status(400)
@@ -101,10 +106,10 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
   }
   try {
     await ExectionSlot.markSlotDeleted({
-    recurring_slot_id: id,
-    date,
-    status: "deleted"
-  });
+      recurring_slot_id: id,
+      date,
+      status: "deleted",
+    });
 
     return res.status(200).json({ success: true, message: "Slot deleted" });
   } catch (error) {
