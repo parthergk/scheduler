@@ -8,16 +8,14 @@ import { getSlotsForWeek } from "./helper/getSlotsForWeek";
 
 const app = express();
 
-app.use(
-  cors({origin: "*"})
-);
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
-app.get("/",(req:Request, res:Response)=>{
-  res.send("Hello");
-})
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello from Vercel Express + TS!");
+});
 
 app.post("/api/schedule", async (req: Request, res: Response) => {
   const { day, startTime, endTime } = req.body;
@@ -122,4 +120,6 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
   }
 });
 
-export default app
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
