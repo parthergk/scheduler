@@ -38,7 +38,7 @@ const Schedule: React.FC<Props & {
 
   const handleUpdate = async (slot: SlotData) => {
     try {
-      const res = await fetch(`https://scheduler-teal-eight.vercel.app/api/schedule`, {
+      const res = await fetch(`https://scheduler-bay-two.vercel.app/api/schedule`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...slot, date, status: "edited" }),
@@ -54,7 +54,7 @@ const Schedule: React.FC<Props & {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`https://scheduler-teal-eight.vercel.app/api/schedule`, {
+      const res = await fetch(`https://scheduler-bay-two.vercel.app/api/schedule`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, date }),

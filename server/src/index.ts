@@ -5,17 +5,15 @@ dotenv.config();
 import * as RecurringSlot from "./models/recurring_slot_Model";
 import * as ExectionSlot from "./models/exection_slot_Model";
 import { getSlotsForWeek } from "./helper/getSlotsForWeek";
-
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "https://slotscheduler-eight.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 app.use(express.json());
-
-const port = process.env.PORT || 3000;
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from Vercel Express + TS!");
-});
 
 app.post("/api/schedule", async (req: Request, res: Response) => {
   const { day, startTime, endTime } = req.body;

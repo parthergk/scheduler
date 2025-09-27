@@ -38,7 +38,7 @@ const SlotInput = ({
 
   async function saveData() {
     try {
-      const res = await fetch("https://scheduler-teal-eight.vercel.app/api/schedule", {
+      const res = await fetch("https://scheduler-bay-two.vercel.app/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ day, startTime, endTime }),
@@ -47,7 +47,7 @@ const SlotInput = ({
       if (!res.ok) throw new Error("Failed to add slot");
       await res.json();
       showMessage("Slot added successfully");
-      onChange(); // 🔥 Refetch
+      onChange();
     } catch (err: any) {
       showMessage(err.message || "Error saving slot", true);
     }
