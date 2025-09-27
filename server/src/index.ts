@@ -9,10 +9,7 @@ import { getSlotsForWeek } from "./helper/getSlotsForWeek";
 const app = express();
 
 app.use(
-  cors({
-    origin: "https://slotscheduler-eight.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-  })
+  cors({origin: "*"})
 );
 app.use(express.json());
 
@@ -128,5 +125,3 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`http server is runing on http://localhost:${port}`);
 });
-
-export default app
