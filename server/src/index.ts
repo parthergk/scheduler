@@ -15,7 +15,7 @@ app.use(express.json());
 
 const port = process.env.PORT || 8080;
 
-app.get("/",(req, res)=>{
+app.get("/",(req:Request, res:Response)=>{
   res.send("Hello");
 })
 
@@ -122,6 +122,4 @@ app.delete("/api/schedule", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`http server is runing on http://localhost:${port}`);
-});
+export default app
